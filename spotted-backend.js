@@ -30,6 +30,7 @@ var IMG = mongoose.model('IMG', imageSchema);
 // start a server
 var server = express();
 server.use(express.bodyParser());
+server.use(express.bodyParser({uploadDir:'./uploads'}));
 
 // mongodb 
 mongoose.connect(settings.mongoImagesURI, function(err, res){
@@ -47,7 +48,7 @@ mongoose.connection.on('open', function () {
   });
 
   server.post('/s3/upload', function(req, res) {
-    var file = req.files.file;
+    var file = req.files[0];
     var filename = (file.name).replace(/ /g, '-');
     uploadFile(filename);
     res.send(filename);
@@ -71,12 +72,12 @@ mongoose.connection.on('open', function () {
     });
   });
 
-  // server.post('/reset', function (req, res) {
-  //   IMG.remove(function(err){
-  //     if (err) throw err;
-  //     res.json('reset images!');
-  //   });
-  // });
+  server.post('/reset', function (req, res) {
+    IMG.remove(function(err){
+      if (err) throw err;
+      res.json('reset images!');
+    });
+  });
 
   var portNumber = process.env.PORT || 3000;
   server.listen(portNumber, function (err) {
