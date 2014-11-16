@@ -137,7 +137,8 @@ mongoose.connection.on('open', function () {
 // helper functions
 
 function isNearby(lat1, lng1, lat2, lng2) {
-  nearby = 0.01449275362; // check if difference is within this
+  var nearby = 0.01449275362; // check if difference is within this
+  nearby = 1;
   return (Math.abs(lat1-lat2) < nearby && Math.abs(lng1-lng2) < nearby)
 }
 
