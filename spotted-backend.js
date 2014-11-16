@@ -73,6 +73,20 @@ mongoose.connection.on('open', function () {
     });
   });
 
+  server.post('/images/delete/:id', function (req, res) {
+    imageID = req.param("id");
+    console.log('deteing img with id: ' + imageID);
+    IMG.find({_id: imageID}).remove().exec();
+    res.json("deleted!");
+  });
+
+  server.post('/images/:id', function (req, res) {
+    imageID = req.param("id");
+    IMG.findById(imageID, function(err, image){
+      res.json(image);
+    });
+  });
+
   server.post('/reset', function (req, res) {
     IMG.remove(function(err){
       if (err) throw err;
