@@ -1,5 +1,7 @@
 var express = require("express");
 var fs = require('fs');
+var busboy = require('connect-busboy'); //middleware for form/file upload
+var knox = require('knox');
 var mongoose = require('mongoose');
 var Schema = mongoose.Schema;
 var settings = require('./settings');
@@ -7,18 +9,21 @@ var settings = require('./settings');
 // img path
 var imgPath = './sloth2.jpg';
  
-// // connect to MongoDB
-// var uristring =
-// process.env.MONGOLAB_URI ||
-// process.env.MONGOHQ_URL ||
-// 'mongodb://localhost/images';
-
-//mongoose.connect(settings.mongoURI, 'images');
+// mongodb 
 mongoose.connect(settings.mongoImagesURI, function(err, res){
   if (err) {
     console.log(err)
   }
 });
+
+// AWS S3
+var knox_params = {
+    key: process.env.AWS_ACCESS_KEY,
+    secret: process.env.AWS_SECRET_KEY,
+    bucket: process.env.S3_BUCKET,
+    endpoint: process.env.S3_BUCKET + '.s3-us-west-2.amazonaws.com'
+  };
+process.env.NODE_TLS_REJECT_UNAUTHORIZED = 0;
  
 // schema for an image
 var imageSchema = new Schema({
@@ -38,6 +43,43 @@ mongoose.connection.on('open', function () {
 
   server.get('/test', function (req, res) {
     res.json('hi');
+  });
+
+  server.post('/s3/upload', function(req, res) {
+    var client = knox.createClient(knox_params);
+
+    var file = req.files.file;
+    var filename = (file.name).replace(/ /g, '-');
+
+    client.putFile(file.path, 'scratch/' + filename, {'Content-Type': file.type, 'x-amz-acl': 'public-read'}, 
+      function(err, result) {
+        if (err) {
+          console.log(err);
+          res.send(err); 
+        } else {
+          if (200 == result.statusCode) { 
+            console.log('Uploaded to Amazon S3!');
+
+            // call the resizer function for to different sizes.
+            if (process.env.BLITLINE_API_KEY) {
+              resizer( filename, 100, 100 );
+              resizer( filename, 400, 600 );
+            }
+
+            fs.unlink(file.path, function (err) {
+              if (err) throw err;
+              console.log('successfully deleted /'+file.path); 
+            });
+
+          } else { 
+            console.log('Failed to upload file to Amazon S3'); 
+            console.log(result.statusCode);
+          }
+
+          res.send('thanks'); 
+        }
+    });
+
   });
 
   server.post('/upload', function (req, res) {
@@ -83,13 +125,14 @@ mongoose.connection.on('open', function () {
   //   });
   // });
 
-  var portNumber = server.listen(process.env.PORT || 3000);
+  var portNumber = process.env.PORT || 3000;
 
    server.listen(portNumber, function (err) {
      if (err) {
        console.error(err);
      } else {
-       console.error('press CTRL+C to exit');
+      console.log("Listening on port " + portNumber);
+      console.error('press CTRL+C to exit');
      }
    });
 });
