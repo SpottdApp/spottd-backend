@@ -12,7 +12,7 @@ var settings = require('./settings')
 // img path
 var imgPath = './sloth2.jpg';
  
-// connect to MongoDB
+//connect to MongoDB
 var uristring =
 process.env.MONGOLAB_URI ||
 process.env.MONGOHQ_URL ||
