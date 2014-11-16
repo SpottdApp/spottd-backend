@@ -79,6 +79,7 @@ mongoose.connection.on('open', function () {
   server.get('/images/nearby', function (req, res) {
     thisLat = req.query.lat;
     thisLng = req.query.lng;
+    console.log('looking for places nearby ' + thisLat + ', ' + thisLng);
     array = [];
     IMG.find().select('_id s3Url createdAt lat lng').limit(100).sort('-createdAt').exec(function(err, items){
       for (var i=0; i<items.length; i++){
