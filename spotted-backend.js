@@ -90,12 +90,13 @@ mongoose.connection.on('open', function () {
 });
 
 function uploadFile(localFileName) {
-  console.log('starting file upload');
+  console.log('starting file upload...');
   var fileBuffer = fs.readFileSync(localFileName);
   var metaData = 'image/jpg';
   // make new model instance
   var newImage = new IMG;
   var remoteFilename = newImage._id + '.jpg';
+  console.log('...to remote file name ' + remoteFilename);
   newImage.contentType = 'image/jpg';
   // upload file to s3
   s3.putObject({
