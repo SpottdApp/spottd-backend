@@ -13,7 +13,10 @@ send 'file=' in request body, like this:
 delete image by id
 
 ####GET /images/all
-returns array of image IDs and URLs
+returns array of all images
+
+####GET /images/nearby
+returns array of images with a latidude/longitude near a latitude/longitude passed in the request body
 
 ####GET images/:id
 url for specific image
