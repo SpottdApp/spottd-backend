@@ -7,14 +7,14 @@ var settings = require('./settings');
 // img path
 var imgPath = './sloth2.jpg';
  
-//connect to MongoDB
-var uristring =
-process.env.MONGOLAB_URI ||
-process.env.MONGOHQ_URL ||
-'mongodb://localhost/images';
+// // connect to MongoDB
+// var uristring =
+// process.env.MONGOLAB_URI ||
+// process.env.MONGOHQ_URL ||
+// 'mongodb://localhost/images';
 
 //mongoose.connect(settings.mongoURI, 'images');
-mongoose.connect(uristring, function(err, res){
+mongoose.connect(settings.mongoImagesURI, function(err, res){
   if (err) {
     console.log(err)
   }
