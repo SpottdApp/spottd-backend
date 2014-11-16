@@ -13,8 +13,9 @@ var AWS_params = {
 process.env.NODE_TLS_REJECT_UNAUTHORIZED = 0;
 
 AWS.config.update(AWS_params);
-AWS.config.update({region:'us-west-2'});
+// AWS.config.update({region:'us-west-2'});
 var s3 = new AWS.S3(AWS.config); // should be already configged from .env variables
+// s3.config.update(AWS.config);
  
 // schema for an image
 var imageSchema = new Schema({
