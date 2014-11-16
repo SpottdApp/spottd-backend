@@ -48,8 +48,9 @@ mongoose.connection.on('open', function () {
   });
 
   server.post('/s3/upload', function(req, res) {
-    var file = req.files[0];
+    var file = req.files.file;
     var filename = (file.name).replace(/ /g, '-');
+    filename = req.files.file.path;
     uploadFile(filename);
     res.send(filename);
   });
