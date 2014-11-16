@@ -13,4 +13,4 @@ send 'file=' in request body, like this:
 returns array of image IDs and URLs
 
 ####GET images/:id
-.png file
+url for specific image

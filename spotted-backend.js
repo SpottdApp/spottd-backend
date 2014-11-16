@@ -64,8 +64,7 @@ mongoose.connection.on('open', function () {
   server.get('/images/:id', function (req, res) {
     imageID = req.param("id");
     IMG.findById(imageID, function(err, image){
-      res.contentType('image/png');
-      res.send(image.img.data);
+      res.json(image.img.s3Url);
     });
   });
 
