@@ -90,6 +90,7 @@ mongoose.connection.on('open', function () {
 });
 
 function uploadFile(localFileName) {
+  console.log('starting file upload');
   var fileBuffer = fs.readFileSync(localFileName);
   var metaData = 'image/jpg';
   // make new model instance
