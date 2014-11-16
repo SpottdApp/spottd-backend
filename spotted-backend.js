@@ -1,13 +1,8 @@
-/**
- * Module dependencies
- */
- 
 var express = require("express");
-
 var fs = require('fs');
 var mongoose = require('mongoose');
 var Schema = mongoose.Schema;
-var settings = require('./settings')
+var settings = require('./settings');
  
 // img path
 var imgPath = './sloth2.jpg';
