@@ -122,7 +122,7 @@ function uploadFile(localFileName) {
     Body: fileBuffer,
     ContentType: newImage.contentType
   }, function(err, response) {
-    console.log('got here!');
+    console.log(AWS_params);
     if (err) {
       console.log(err);
       return err;
