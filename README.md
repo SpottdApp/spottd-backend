@@ -1,6 +1,6 @@
 ###Run locally
 - Create a `.env` file of KEY=VALUE pairs with the variables from `heroku config`
-- Start on port 5000 with foreman using `nf start`
+- Start with foreman using `nf start`
 
 ###HTTP Requests
 
