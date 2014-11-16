@@ -85,14 +85,14 @@ mongoose.connection.on('open', function () {
       for (var i=0; i<items.length; i++){
         array.push(items[i]);
       }
+       // filter 
+      var nearbyArray = [];
+      nearbyArray = array.filter(function(el){
+        return (el.lat != null && el.lng != null && isNearby(thisLat, thisLng, el.lat, el.lng));
+      });
+      res.send(nearbyArray);
+      console.log('rendered ' + nearbyArray.length + ' images');
     });
-    // filter 
-    var nearbyArray = [];
-    nearbyArray = array.filter(function(el){
-      return (el.lat != null && el.lng != null && isNearby(thisLat, thisLng, el.lat, el.lng));
-    });
-    res.send(nearbyArray);
-    console.log('rendered ' + nearbyArray.length + ' images');
   });
 
   server.get('/images/:id', function (req, res) {
