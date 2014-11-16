@@ -5,13 +5,6 @@ var AWS = require('aws-sdk');
 var Schema = mongoose.Schema;
 var settings = require('./settings');
  
-// mongodb 
-mongoose.connect(settings.mongoImagesURI, function(err, res){
-  if (err) {
-    console.log(err)
-  }
-});
-
 // AWS S3
 var AWS_params = {
   AWS_ACCESS_KEY_ID: process.env.AWS_ACCESS_KEY_ID,
@@ -34,13 +27,20 @@ var imageSchema = new Schema({
 // image model
 var IMG = mongoose.model('IMG', imageSchema);
  
-// while connection is on
+// start a server
+var server = express();
+server.use(express.bodyParser());
+
+// mongodb 
+mongoose.connect(settings.mongoImagesURI, function(err, res){
+  if (err) {
+    console.log(err)
+  }
+});
+
+// while connection is on, define routes
 mongoose.connection.on('open', function () {
   console.error('mongo is open');
-
-  // start a demo server
-  var server = express();
-  server.use(express.bodyParser());
 
   server.get('/test', function (req, res) {
     res.json('hi');
@@ -49,13 +49,13 @@ mongoose.connection.on('open', function () {
   server.post('/s3/upload', function(req, res) {
     var file = req.files.file;
     var filename = (file.name).replace(/ /g, '-');
-    uploadFile(filename, filename);
+    uploadFile(filename);
     res.send(filename);
   });
 
   server.get('/images/all', function (req, res) { // returns 100 image ids
     array = [];
-    IMG.find().select('_id s3Url createdAt').limit(100).sort('-_id').exec(function(err, items){
+    IMG.find().select('_id s3Url createdAt').limit(100).sort('-createdAt').exec(function(err, items){
       for (var i=0; i<items.length; i++){
         array.push(items[i]);
       }
@@ -79,24 +79,24 @@ mongoose.connection.on('open', function () {
   // });
 
   var portNumber = process.env.PORT || 3000;
-
-   server.listen(portNumber, function (err) {
-     if (err) {
-       console.error(err);
-     } else {
+  server.listen(portNumber, function (err) {
+    if (err) {
+      console.error(err);
+    } else {
       console.log("Listening on port " + portNumber);
       console.error('press CTRL+C to exit');
-     }
-   });
+    }
+  });
 });
 
-function uploadFile(remoteFilename, localFileName) {
+function uploadFile(localFileName) {
   var fileBuffer = fs.readFileSync(localFileName);
   var metaData = 'image/jpg';
   // make new model instance
   var newImage = new IMG;
+  var remoteFilename = newImage._id + '.jpg';
   newImage.contentType = 'image/jpg';
-  // upload file it to s3
+  // upload file to s3
   s3.putObject({
     ACL: 'public-read',
     Bucket: process.env.S3_BUCKET,
@@ -108,12 +108,13 @@ function uploadFile(remoteFilename, localFileName) {
     console.log('uploaded file [' + localFileName + '] to [' + remoteFilename + '] as [' + metaData + ']');
     var params = {Bucket: process.env.S3_BUCKET, Key: remoteFilename};
     s3.getSignedUrl('getObject', params, function (err, url) {
-      if (err) throw err;
+      if (err) return err;
+      url = 'https://' + process.env.S3_BUCKET + '.s3-us-west-2.amazonaws.com/' + remoteFilename;
       newImage.s3Url = url;
       newImage.createdAt = new Date();
       // now that we have a url, save the image
       newImage.save(function (err, a) {
-        if (err) throw err;
+        if (err) return err;
         console.error('saved image!');
       });
     });
