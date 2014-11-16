@@ -22,7 +22,9 @@ var imageSchema = new Schema({
       contentType: String,
       s3Url: String,
       createdAt: { type: Date },
-      updatedAt: { type: Date }
+      updatedAt: { type: Date },
+      lat: String, // latitude
+      lng: String // longitude
 });
  
 // image model
@@ -49,10 +51,17 @@ mongoose.connection.on('open', function () {
   });
 
   server.post('/s3/upload', function(req, res) {
+    // get filename
     var file = req.files.file;
     var filename = (file.name).replace(/ /g, '-');
     filename = req.files.file.path;
-    uploadFile(filename);
+    //initialize new model instance
+    var newImage = new IMG;
+    newImage.contentType = 'image/jpg';
+    newImage.lat = req.body.lat;
+    newImage.lng =req.body.lng;
+    // finally upload file to s3
+    uploadFile(newImage, filename);
     res.send(filename);
   });
 
@@ -74,6 +83,15 @@ mongoose.connection.on('open', function () {
     });
   });
 
+  // server.get('/images/nearby', function (req, res) {
+  //   lat = req.query.lat;
+  //   lng = req.query.lng;
+  //   imageID = req.param("id");
+  //   IMG.findById(imageID, function(err, image){
+  //     res.json(image);
+  //   });
+  // });
+
   server.delete('/images/delete/:id', function (req, res) {
     imageID = req.param("id");
     console.log('deteing img with id: ' + imageID);
@@ -81,12 +99,12 @@ mongoose.connection.on('open', function () {
     res.json("deleted!");
   });
 
-  server.post('/images/:id', function (req, res) {
-    imageID = req.param("id");
-    IMG.findById(imageID, function(err, image){
-      res.json(image);
-    });
-  });
+  // server.post('/images/:id', function (req, res) {
+  //   imageID = req.param("id");
+  //   IMG.findById(imageID, function(err, image){
+  //     res.json(image);
+  //   });
+  // });
 
   // server.post('/reset', function (req, res) {
   //   IMG.remove(function(err){
@@ -106,15 +124,13 @@ mongoose.connection.on('open', function () {
   });
 });
 
-function uploadFile(localFileName) {
+// helper functions
+
+function uploadFile(newImage, localFileName) {
   console.log('starting file upload...');
   var fileBuffer = fs.readFileSync(localFileName);
-  // make new model instance
-  var newImage = new IMG;
   var remoteFilename = newImage._id + '.jpg';
   console.log('...to remote file name ' + remoteFilename);
-  newImage.contentType = 'image/jpg';
-  // upload file to s3
   s3.putObject({
     ACL: 'public-read',
     Bucket: process.env.S3_BUCKET,
