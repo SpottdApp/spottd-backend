@@ -13,7 +13,17 @@ var settings = require('./settings')
 var imgPath = './sloth2.jpg';
  
 // connect to MongoDB
-mongoose.connect(settings.mongoURI, 'images');
+var uristring =
+process.env.MONGOLAB_URI ||
+process.env.MONGOHQ_URL ||
+'mongodb://localhost/images';
+
+//mongoose.connect(settings.mongoURI, 'images');
+mongoose.connect(uristring, function(err, res){
+  if (err) {
+    console.log(err)
+  }
+});
  
 // schema for an image
 var imageSchema = new Schema({
