@@ -4,14 +4,6 @@
 
 ###HTTP Requests
 
-####POST /s3/upload
-send 'file=' in request body, like this:
-	
-	curl -i -F name=test -F file=@sloth.jpg http://localhost:5000/s3/upload
-
-####DELETE /images/delete/:id
-delete image by id
-
 ####GET /images/all
 returns array of all images
 
@@ -20,3 +12,11 @@ returns array of images with a latidude/longitude near a latitude/longitude pass
 
 ####GET images/:id
 url for specific image
+
+####POST /s3/upload
+send 'file=' in request body, like this:
+	
+	curl -i -F name=test -F file=@sloth.jpg http://localhost:5000/s3/upload
+
+####DELETE /images/delete/:id
+delete image by id
