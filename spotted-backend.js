@@ -2,7 +2,8 @@
  * Module dependencies
  */
  
-var express = require('express');
+var express = require("express");
+
 var fs = require('fs');
 var mongoose = require('mongoose');
 var Schema = mongoose.Schema;
@@ -27,7 +28,7 @@ mongoose.connection.on('open', function () {
   console.error('mongo is open');
 
   // start a demo server
-  var server = express.createServer();
+  var server = express();
   server.use(express.bodyParser());
 
   server.get('/test', function (req, res) {
