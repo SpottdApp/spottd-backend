@@ -25,7 +25,10 @@ var s3 = new AWS.S3(AWS.config); // should be already configged from .env variab
  
 // schema for an image
 var imageSchema = new Schema({
-    img: {contentType: String, s3Url: String}
+      contentType: String,
+      s3Url: String,
+      createdAt: { type: Date },
+      updatedAt: { type: Date }
 });
  
 // image model
@@ -52,9 +55,9 @@ mongoose.connection.on('open', function () {
 
   server.get('/images/all', function (req, res) { // returns 100 image ids
     array = [];
-    IMG.find().select().limit(100).sort('-_id').exec(function(err, items){
+    IMG.find().select('_id s3Url createdAt').limit(100).sort('-_id').exec(function(err, items){
       for (var i=0; i<items.length; i++){
-        array.push([items[i]._id, items[i].img.s3Url]);
+        array.push(items[i]);
       }
       res.send(array);
       console.log('rendered all ' + items.length + ' images');
@@ -64,7 +67,7 @@ mongoose.connection.on('open', function () {
   server.get('/images/:id', function (req, res) {
     imageID = req.param("id");
     IMG.findById(imageID, function(err, image){
-      res.json(image.img.s3Url);
+      res.json(image);
     });
   });
 
@@ -92,7 +95,7 @@ function uploadFile(remoteFilename, localFileName) {
   var metaData = 'image/jpg';
   // make new model instance
   var newImage = new IMG;
-  newImage.img.contentType = 'image/jpg';
+  newImage.contentType = 'image/jpg';
   // upload file it to s3
   s3.putObject({
     ACL: 'public-read',
@@ -106,7 +109,8 @@ function uploadFile(remoteFilename, localFileName) {
     var params = {Bucket: process.env.S3_BUCKET, Key: remoteFilename};
     s3.getSignedUrl('getObject', params, function (err, url) {
       if (err) throw err;
-      newImage.img.s3Url = url;
+      newImage.s3Url = url;
+      newImage.createdAt = new Date();
       // now that we have a url, save the image
       newImage.save(function (err, a) {
         if (err) throw err;
