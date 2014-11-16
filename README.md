@@ -4,11 +4,12 @@
 
 ###HTTP Requests
 
-####POST /images/upload
-send 'path' in request body
+####POST /s3/upload
+send 'file=' in request body, like this:
+	curl -i -F name=test -F file=@sloth.jpg http://localhost:5000/s3/upload
 
-####GET /images/ids
-returns array of ids
+####GET /images/all
+returns array of image IDs and URLs
 
 ####GET images/:id
 .png file
