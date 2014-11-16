@@ -67,7 +67,7 @@ mongoose.connection.on('open', function () {
 
   server.get('/images/all', function (req, res) { // returns 100 image ids
     array = [];
-    IMG.find().select('_id s3Url createdAt').limit(100).sort('-createdAt').exec(function(err, items){
+    IMG.find().select('_id s3Url createdAt lat lng').limit(100).sort('-createdAt').exec(function(err, items){
       for (var i=0; i<items.length; i++){
         array.push(items[i]);
       }
@@ -76,21 +76,30 @@ mongoose.connection.on('open', function () {
     });
   });
 
+  server.get('/images/nearby', function (req, res) {
+    thisLat = req.body.lat;
+    thisLng = req.body.lng;
+    array = [];
+    IMG.find().select('_id s3Url createdAt lat lng').limit(100).sort('-createdAt').exec(function(err, items){
+      for (var i=0; i<items.length; i++){
+        array.push(items[i]);
+      }
+    });
+    // filter 
+    var nearbyArray = [];
+    nearbyArray = array.filter(function(el){
+      return (el.lat != null && el.lng != null && isNearby(thisLat, thisLng, el.lat, el.lng));
+    });
+    res.send(nearbyArray);
+    console.log('rendered ' + nearbyArray.length + ' images');
+  });
+
   server.get('/images/:id', function (req, res) {
     imageID = req.param("id");
     IMG.findById(imageID, function(err, image){
       res.json(image);
     });
   });
-
-  // server.get('/images/nearby', function (req, res) {
-  //   lat = req.query.lat;
-  //   lng = req.query.lng;
-  //   imageID = req.param("id");
-  //   IMG.findById(imageID, function(err, image){
-  //     res.json(image);
-  //   });
-  // });
 
   server.delete('/images/delete/:id', function (req, res) {
     imageID = req.param("id");
@@ -125,6 +134,11 @@ mongoose.connection.on('open', function () {
 });
 
 // helper functions
+
+function isNearby(lat1, lng1, lat2, lng2) {
+  nearby = 0.01449275362; // check if difference is within this
+  return (Math.abs(lat1-lat2) < nearby && Math.abs(lng1-lng2) < nearby)
+}
 
 function uploadFile(newImage, localFileName) {
   console.log('starting file upload...');
