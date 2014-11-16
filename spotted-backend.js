@@ -108,7 +108,6 @@ mongoose.connection.on('open', function () {
 function uploadFile(localFileName) {
   console.log('starting file upload...');
   var fileBuffer = fs.readFileSync(localFileName);
-  var metaData = 'image/jpg';
   // make new model instance
   var newImage = new IMG;
   var remoteFilename = newImage._id + '.jpg';
@@ -120,8 +119,9 @@ function uploadFile(localFileName) {
     Bucket: process.env.S3_BUCKET,
     Key: remoteFilename,
     Body: fileBuffer,
-    ContentType: metaData
+    ContentType: newImage.contentType
   }, function(err, response) {
+    console.log('got here!');
     if (err) return err;
     console.log('uploaded file [' + localFileName + '] to [' + remoteFilename + '] as [' + metaData + ']');
     var params = {Bucket: process.env.S3_BUCKET, Key: remoteFilename};
