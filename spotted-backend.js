@@ -57,7 +57,7 @@ mongoose.connection.on('open', function () {
 
   server.get('/images/all', function (req, res) { // returns 100 image ids
     array = [];
-    IMG.find().select('_id s3Url createdAt').limit(100).sort('-createdAt').exec(function(err, items){
+    IMG.find().select('_id s3Url createdAt').limit(100).sort('createdAt').exec(function(err, items){
       for (var i=0; i<items.length; i++){
         array.push(items[i]);
       }
