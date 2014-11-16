@@ -122,7 +122,10 @@ function uploadFile(localFileName) {
     ContentType: newImage.contentType
   }, function(err, response) {
     console.log('got here!');
-    if (err) return err;
+    if (err) {
+      console.log(err);
+      return err;
+    }
     console.log('uploaded file [' + localFileName + '] to [' + remoteFilename + '] as [' + metaData + ']');
     var params = {Bucket: process.env.S3_BUCKET, Key: remoteFilename};
     s3.getSignedUrl('getObject', params, function (err, url) {
