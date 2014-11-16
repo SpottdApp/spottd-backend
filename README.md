@@ -9,6 +9,9 @@ send 'file=' in request body, like this:
 	
 	curl -i -F name=test -F file=@sloth.jpg http://localhost:5000/s3/upload
 
+####DELETE /images/delete/:id
+delete image by id
+
 ####GET /images/all
 returns array of image IDs and URLs
 

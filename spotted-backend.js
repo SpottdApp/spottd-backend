@@ -73,7 +73,7 @@ mongoose.connection.on('open', function () {
     });
   });
 
-  server.post('/images/delete/:id', function (req, res) {
+  server.delete('/images/delete/:id', function (req, res) {
     imageID = req.param("id");
     console.log('deteing img with id: ' + imageID);
     IMG.find({_id: imageID}).remove().exec();
@@ -87,12 +87,12 @@ mongoose.connection.on('open', function () {
     });
   });
 
-  server.post('/reset', function (req, res) {
-    IMG.remove(function(err){
-      if (err) throw err;
-      res.json('reset images!');
-    });
-  });
+  // server.post('/reset', function (req, res) {
+  //   IMG.remove(function(err){
+  //     if (err) throw err;
+  //     res.json('reset images!');
+  //   });
+  // });
 
   var portNumber = process.env.PORT || 3000;
   server.listen(portNumber, function (err) {
