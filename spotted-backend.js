@@ -83,7 +83,9 @@ mongoose.connection.on('open', function () {
   //   });
   // });
 
-   server.listen(3000, function (err) {
+  var portNumber = server.listen(process.env.PORT || 3000);
+
+   server.listen(portNumber, function (err) {
      if (err) {
        console.error(err);
      } else {
